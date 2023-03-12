@@ -9,20 +9,20 @@
 ### 基本数据类型:
 * 整型：
 
-	| 类型   | 占用存储   | 表数范围 | 备注     |
-	| :---   |    :----:   |     :---:   |:----:|
-	| int       | 32位系统4字节 64位系统8字节   | -   |-|
-	| int8     | 1字节       | -     |-|
-	| int16    | 2字节       | -      |-|
-	| int32    | 4字节      | -      |-|
-	| int64    | 8字节      | -      |-|
-	| uint      | 32位系统4字节 64位系统8字节  | -  |-|
-	| uint8    | 1字节       | -      |-|
-	| uint16   | 2字节      | -      |-|
-	| uint32  | 4字节      | -      |-|
-	| uint64  | 8字节      | -     |-|
-	| rune    |  4字节      |	-		|等价于int32 表示Unicode码 |
-	| byte    | 1字节        |  0～255	|- |
+	| 类型   	 | 占用存储   | 表数范围 		   | 备注  |
+	| :---   	 |   :----:  |     :---:	   |:----:|
+	| int      | 32位系统4字节 64位系统8字节     |-|-|
+	| int8     | 1字节      | -128～127	     |-|
+	| int16    | 2字节      | -2^15~2^15-1  |-|
+	| int32    | 4字节      | -2^31~2^31-1  |-|
+	| int64    | 8字节      | -2^63~2^63-1  |-|
+	| uint     | 32位系统4字节 64位系统8字节     |-|-|
+	| uint8    | 1字节      | 0~255         |-|
+	| uint16   | 2字节      | 0~2^16-1      |-|
+	| uint32   | 4字节      | 0~2^32-1      |-|
+	| uint64   | 8字节      | 0~2^64-1      |-|
+	| rune     |  4字节     | -2^31~2^31-1  |等价于int32 表示Unicode码 |
+	| byte     | 1字节      | 0～255	      |-|
 
 
 * 浮点
@@ -62,10 +62,17 @@ var i int32 = 100
 //将 int32类型 转换为 float32类型
 var i float32 = float32(i)
 ```
+浮点类型转换为二进制时:
+
+* 整数部分直接转换
+* 小数部分\*2，如果结果小于1，则继续\*2，如果结果大于1，则结果-1后的小数部分继续*2，直到结果刚好等于1
+
 基本数据类型和string之间的转换:
 
 - fmt.Springf()
 - strconvb包
+- 字符串转布尔类型时 "1","t","T","true","True" 转换后都为true 
+- "0","f","F","false","False" 转换后都为false
 
 -
     
@@ -319,12 +326,7 @@ iota 常量定义计数器，从0开始，用以生成连续常量，只作用�
 new关键字返回的为指针类型
 make 返回为对象
 
-浮点类型转换为二进制时：
-	整数部分直接转换，小数部分转换规则为：
-		小数部分*2，如果结果小于1，则继续*2，如果结果大于1，则结果-1后的小数部分继续*2，直到结果刚好等于1
 
-布尔类型：
-	字符串转布尔类型时 "1","t","T","true","True" 转换后都为true 	"0","f","F","false","False" 转换后都为false
 
 字符类型
 	一个字符3个字节，字符串按下标方式获取到的为每个字节的十进制形式
@@ -348,29 +350,30 @@ datas := append(data,3) 含义为在data切片中添加一个新的元素，值�
 	
 
 ### 闭包：
-函数使用函数外的参数完成调用 参数与函数称为闭包
-	
 
+* 函数使用函数外的参数完成调用 参数与函数称为闭包
+	
 
 	
 ### 异常处理：
-使用revover()函数接受 err
-使用panic()抛出异常
+
+* 使用revover()函数接受 err
+* 使用panic()抛出异常
 	
-```	
-func errorOne() {
-    defer func() {
-        err := recover()
-        if err != nil {
-            fmt.Print(err) //正常输出 不阻断
-            panic(err)     //抛出异常 阻断进程
-        }
-    }()
-    num := 0
-    res := 10 / num
-    fmt.Print(res)
-}
-```
+	```	
+	func errorOne() {
+	    defer func() {
+	        err := recover()
+	        if err != nil {
+	            fmt.Print(err) //正常输出 不阻断
+	            panic(err)     //抛出异常 阻断进程
+	        }
+	    }()
+	    num := 0
+	    res := 10 / num
+	    fmt.Print(res)
+	}
+	```
 
 		
 		
@@ -428,69 +431,69 @@ func errorOne() {
 
 #### os包中 File 封装了文件相关动作
 
-* 打开文件使用`os.Open(name string)(file *File,err error)` 会返回一个File指针
+* 获取文件使用`os.Open(name string)(file *File,err error)` 会返回一个File指针
 
-	文件读取
+	+ 文件读取
 
-	```go
-	func main() {
-		file, err := os.Open("/Users/arning/go/src/oop/main.go")
-		if err != nil {
-			fmt.Println(err)
-		}
-		defer file.Close()
-		//获取缓冲读取对象 默认缓冲区大小defaultBufSize = 4096
-		reader := bufio.NewReader(file)
-		for {
-			//读取到换行符刷新缓冲
-			str, err := reader.ReadString('\n')
+		```go
+		func main() {
+			file, err := os.Open("/Users/arning/go/src/oop/main.go")
 			if err != nil {
-				//表示读取到文件末尾
-				if err == io.EOF {
+				fmt.Println(err)
+			}
+			defer file.Close()
+			//获取缓冲读取对象 默认缓冲区大小defaultBufSize = 4096
+			reader := bufio.NewReader(file)
+			for {
+				//读取到换行符刷新缓冲
+				str, err := reader.ReadString('\n')
+				if err != nil {
+					//表示读取到文件末尾
+					if err == io.EOF {
+						break
+					}
+					fmt.Println(err)
 					break
 				}
-				fmt.Println(err)
-				break
+				fmt.Print(str)
 			}
-			fmt.Print(str)
+			//直接打开文件，返回byte切片和err
+			v, _ := ioutil.ReadFile(file.Name())
+			fmt.Printf(string(v))
 		}
-		//直接打开文件，返回byte切片和err
-		v, _ := ioutil.ReadFile(file.Name())
-		fmt.Printf(string(v))
-	}
-	```
+		```
 	
-	文件写入
+	+ 文件写入
 	
-	```go
-	func main() {
-		//参数1 文件路径
-		//参数2 打开模式 当前以写入，创建，追加模式打开文件
-		//参数3 unix系统中的权限
-		file, err := os.OpenFile("./learnFile.txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
-		if err != nil {
-			fmt.Printf("err: %v\n", err)
-			return
+		```go
+		func main() {
+			//参数1 文件路径
+			//参数2 打开模式 当前以写入，创建，追加模式打开文件
+			//参数3 unix系统中的权限
+			file, err := os.OpenFile("./learnFile.txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
+			if err != nil {
+				fmt.Printf("err: %v\n", err)
+				return
+			}
+			defer file.Close()
+			writer := bufio.NewWriter(file)
+			for i := 0; i < 3; i++ {
+				writer.WriteString("new file write\n")
+				writer.Flush()
+			}
 		}
-		defer file.Close()
-		writer := bufio.NewWriter(file)
-		for i := 0; i < 3; i++ {
-			writer.WriteString("new file write\n")
-			writer.Flush()
-		}
-	}
-	```
+		```
 	
-	`os.OpenFile(name string, flag int, perm FileMode)(*File, error)`中flag的枚举值
+	+ `os.OpenFile(name string, flag int, perm FileMode)(*File, error)`中flag的枚举值:
 	
-	- O\_RDONLY int = syscall.O_RDONLY // open the file read-only.
-	- O\_WRONLY int = syscall.O_WRONLY // open the file write-only.
-	- O\_RDWR   int = syscall.O_RDWR   // open the file read-write.
-	- O\_APPEND int = syscall.O_APPEND // append data to the file when writing.
-	- O\_CREATE int = syscall.O_CREAT  // create a new file if none exists.
-	- O\_EXCL   int = syscall.O\_EXCL   // used with O_CREATE, file must not exist.
-	- O\_SYNC   int = syscall.O_SYNC   // open for synchronous I/O.
-	- O\_TRUNC  int = syscall.O_TRUNC  // truncate regular writable file when opened.
+		- O\_RDONLY int = syscall.O_RDONLY // open the file read-only.
+		- O\_WRONLY int = syscall.O_WRONLY // open the file write-only.
+		- O\_RDWR   int = syscall.O_RDWR   // open the file read-write.
+		- O\_APPEND int = syscall.O_APPEND // append data to the file when writing.
+		- O\_CREATE int = syscall.O_CREAT  // create a new file if none exists.
+		- O\_EXCL   int = syscall.O\_EXCL   // used with O_CREATE, file must not exist.
+		- O\_SYNC   int = syscall.O_SYNC   // open for synchronous I/O.
+		- O\_TRUNC  int = syscall.O_TRUNC  // truncate regular writable file when opened.
 	
 * 可以使用`os.IsNotExist(err error)`函数来判断异常是否为文件不存在异常
 
