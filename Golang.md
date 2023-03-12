@@ -397,29 +397,102 @@ func errorOne() {
 		
 ### 类型断言
 
-接口是一般类型，需要转为具体类型时，需要使用类型断言
+* 接口是一般类型，需要转为具体类型时，需要使用类型断言
 
-```go
-package main
+	```go
+	package main
+	
+	import "fmt"
+	
+	type Point struct {
+		x int
+		y int
+	}
+	
+	func main() {
+		var null_interface interface{}
+		var point Point = Point{1, 3}
+		null_interface = point
+		//类型断言 判断null_interface 是否为指向Point类型的指针
+		// 并且尝试转换 转换失败抛出异常
+		b ,flag := null_interface.(Point)
+		if !flag {
+			fmt.Print("转换失败")
+		}
+		fmt.Printf("b type= %T, value= %v", b, b)
+		//b type= main.Point, value= {1 3}
+	}
+	```
 
-import "fmt"
+### I/O
 
-type Point struct {
-	x int
-	y int
-}
+#### os包中 File 封装了文件相关动作
 
-func main() {
-	var null_interface interface{}
-	var point Point = Point{1, 3}
-	null_interface = point
-	//类型断言 判断null_interface 是否为指向Point类型的指针
-	// 并且尝试转换 转换失败抛出异常
-	b := null_interface.(Point)
-	fmt.Printf("b type= %T, value= %v", b, b)
-	//b type= main.Point, value= {1 3}
-}
-```
+* 打开文件使用`os.Open(name string)(file *File,err error)` 会返回一个File指针
+
+	文件读取
+
+	```go
+	func main() {
+		file, err := os.Open("/Users/arning/go/src/oop/main.go")
+		if err != nil {
+			fmt.Println(err)
+		}
+		defer file.Close()
+		//获取缓冲读取对象 默认缓冲区大小defaultBufSize = 4096
+		reader := bufio.NewReader(file)
+		for {
+			//读取到换行符刷新缓冲
+			str, err := reader.ReadString('\n')
+			if err != nil {
+				//表示读取到文件末尾
+				if err == io.EOF {
+					break
+				}
+				fmt.Println(err)
+				break
+			}
+			fmt.Print(str)
+		}
+		//直接打开文件，返回byte切片和err
+		v, _ := ioutil.ReadFile(file.Name())
+		fmt.Printf(string(v))
+	}
+	```
+	
+	文件写入
+	
+	```go
+	func main() {
+		//参数1 文件路径
+		//参数2 打开模式 当前以写入，创建，追加模式打开文件
+		//参数3 unix系统中的权限
+		file, err := os.OpenFile("./learnFile.txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
+		if err != nil {
+			fmt.Printf("err: %v\n", err)
+			return
+		}
+		defer file.Close()
+		writer := bufio.NewWriter(file)
+		for i := 0; i < 3; i++ {
+			writer.WriteString("new file write\n")
+			writer.Flush()
+		}
+	}
+	```
+	
+	`os.OpenFile(name string, flag int, perm FileMode)(*File, error)`中flag的枚举值
+	
+	- O\_RDONLY int = syscall.O_RDONLY // open the file read-only.
+	- O\_WRONLY int = syscall.O_WRONLY // open the file write-only.
+	- O\_RDWR   int = syscall.O_RDWR   // open the file read-write.
+	- O\_APPEND int = syscall.O_APPEND // append data to the file when writing.
+	- O\_CREATE int = syscall.O_CREAT  // create a new file if none exists.
+	- O\_EXCL   int = syscall.O\_EXCL   // used with O_CREATE, file must not exist.
+	- O\_SYNC   int = syscall.O_SYNC   // open for synchronous I/O.
+	- O\_TRUNC  int = syscall.O_TRUNC  // truncate regular writable file when opened.
+	
+* 可以使用`os.IsNotExist(err error)`函数来判断异常是否为文件不存在异常
 
 		
 ### goroutine
