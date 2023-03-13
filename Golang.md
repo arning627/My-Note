@@ -496,6 +496,7 @@ datas := append(data,3) 含义为在data切片中添加一个新的元素，值�
 		- O\_TRUNC  int = syscall.O_TRUNC  // truncate regular writable file when opened.
 	
 * 可以使用`os.IsNotExist(err error)`函数来判断异常是否为文件不存在异常
+* 文件拷贝`io.Copy(dst Writer, src Reader) (written int64, err error)`
 
 		
 ### goroutine
