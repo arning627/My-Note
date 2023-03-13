@@ -426,6 +426,37 @@ datas := append(data,3) 含义为在data切片中添加一个新的元素，值�
 		//b type= main.Point, value= {1 3}
 	}
 	```
+* Go源码中应用类型断言场景，如IO包中copyBuffer方法使用到类型断言
+	
+	```go
+	// copyBuffer is the actual implementation of Copy and CopyBuffer.
+	// if buf is nil, one is allocated.
+	func copyBuffer(dst Writer, src Reader, buf []byte) (written int64, err error) {
+		// If the reader has a WriteTo method, use it to do the copy.
+		// Avoids an allocation and a copy.
+		if wt, ok := src.(WriterTo); ok {
+			return wt.WriteTo(dst)
+		}
+		// Similarly, if the writer has a ReadFrom method, use it to do the copy.
+		if rt, ok := dst.(ReaderFrom); ok {
+			return rt.ReadFrom(src)
+		}
+		...
+	}
+	----------------------------------------------------------------
+	// WriterTo is the interface that wraps the WriteTo method.
+	// WriteTo writes data to w until there's no more data to write or
+	// when an error occurs. The return value n is the number of bytes
+	// written. Any error encountered during the write is also returned.
+	// The Copy function uses WriterTo if available.
+	type WriterTo interface {
+		WriteTo(w Writer) (n int64, err error)
+	}
+	```
+	
+	+ 上文中尝试将Reader转型为WriterTo体现多态以调用`WriteTo(w Writer) (n int64, err error)`方法
+
+	
 
 ### I/O
 
