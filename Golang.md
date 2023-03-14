@@ -210,6 +210,7 @@ var i float32 = float32(i)
 	+ 可以理解为是一个可变长度的数组，初始容量为3，每次自增容量长度为之前的2倍，在容量超过1024之后，每次增加之前长度的1/4
 	+ 切片 是数组的引用 所以为引用类型 在传递时遵循引用传递机制
 	+ 相当于Java中的List\<T>
+	+ 03.13- Java中的某某类型数组更符合 int数组 string数组 等
     
     
  
@@ -307,7 +308,8 @@ var i float32 = float32(i)
 - package
 - switch
 - const
-- fallthrough
+* fallthrough
+	+ switch结构中 fallthrough表示做case穿透
 * if
 	+ 条件判断 
 - range
@@ -360,7 +362,7 @@ datas := append(data,3) 含义为在data切片中添加一个新的元素，值�
 * 使用revover()函数接受 err
 * 使用panic()抛出异常
 	
-	```	
+	```	go
 	func errorOne() {
 	    defer func() {
 	        err := recover()
@@ -443,7 +445,7 @@ datas := append(data,3) 含义为在data切片中添加一个新的元素，值�
 		}
 		...
 	}
-	----------------------------------------------------------------
+	//----------------------------------------------------------------
 	// WriterTo is the interface that wraps the WriteTo method.
 	// WriteTo writes data to w until there's no more data to write or
 	// when an error occurs. The return value n is the number of bytes
@@ -528,6 +530,11 @@ datas := append(data,3) 含义为在data切片中添加一个新的元素，值�
 	
 * 可以使用`os.IsNotExist(err error)`函数来判断异常是否为文件不存在异常
 * 文件拷贝`io.Copy(dst Writer, src Reader) (written int64, err error)`
+
+
+#### flag包
+
+用来解析命令行参数
 
 		
 ### goroutine
