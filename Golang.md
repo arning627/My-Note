@@ -538,6 +538,52 @@ datas := append(data,3) 含义为在data切片中添加一个新的元素，值�
 
 #### Json
 
+使用`encoding/json`包来解析结构体，结构体以及字段须为public，否则解析为空
+
+json序列化结构体,map和map切片:
+	
+```go
+type Person struct {
+	Age  int
+	Name string
+	Size float64
+}
+	
+func main() {
+	//结构体转换
+	p := Person{Age: 40, Name: "catalina", Size: 43.5}
+	struct_str, _ := json.Marshal(p)
+	fmt.Println(string(struct_str))
+	//map转换
+	var m map[string]interface{}
+	m = make(map[string]interface{})
+	m["age_map"] = 40
+	m["name_map"] = "catalina"
+	m["size_map"] = 45.5
+	map_str, _ := json.Marshal(m)
+	fmt.Println(string(map_str))
+	//切片转换
+	var slice []map[string]interface{}
+	m1 := map[string]interface{}{
+		"age_m1":  43,
+		"name_m1": "catalina",
+		"size_m1": 50.6,
+	}
+	m2 := map[string]interface{}{
+		"person_age":  76,
+		"person_name": "dongmei",
+		"person_size": 78.6,
+	}
+	slice = append(slice, m1, m2)
+	slice_str, _ := json.Marshal(slice)
+	fmt.Println(string(slice_str))
+}
+```
+上段代码输出结果分别为:
+
+`{"Age":40,"Name":"catalina","Size":43.5}`
+`{"age_map":40,"name_map":"catalina","size_map":45.5}`
+`[{"age_m1":43,"name_m1":"catalina","size_m1":50.6},{"person_age":76,"person_name":"dongmei","person_size":78.6}]`
 		
 ### goroutine
 	
