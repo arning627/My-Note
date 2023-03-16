@@ -536,54 +536,96 @@ datas := append(data,3) 含义为在data切片中添加一个新的元素，值�
 
 用来解析命令行参数
 
-#### Json
+#### JSON
 
-使用`encoding/json`包来解析结构体，结构体以及字段须为public，否则解析为空
++ 使用`encoding/json`包来解析结构体，结构体以及字段须为public，否则解析为空
 
-json序列化结构体,map和map切片:
+* json序列化结构体,map和map切片:
 	
-```go
-type Person struct {
-	Age  int
-	Name string
-	Size float64
-}
-	
-func main() {
-	//结构体转换
-	p := Person{Age: 40, Name: "catalina", Size: 43.5}
-	struct_str, _ := json.Marshal(p)
-	fmt.Println(string(struct_str))
-	//map转换
-	var m map[string]interface{}
-	m = make(map[string]interface{})
-	m["age_map"] = 40
-	m["name_map"] = "catalina"
-	m["size_map"] = 45.5
-	map_str, _ := json.Marshal(m)
-	fmt.Println(string(map_str))
-	//切片转换
-	var slice []map[string]interface{}
-	m1 := map[string]interface{}{
-		"age_m1":  43,
-		"name_m1": "catalina",
-		"size_m1": 50.6,
+	```go
+	type Person struct {
+		Age  int
+		Name string
+		Size float64
 	}
-	m2 := map[string]interface{}{
-		"person_age":  76,
-		"person_name": "dongmei",
-		"person_size": 78.6,
+		
+	func main() {
+		//结构体转换
+		p := Person{Age: 40, Name: "catalina", Size: 43.5}
+		struct_str, _ := json.Marshal(p)
+		fmt.Println(string(struct_str))
+		//map转换
+		var m map[string]interface{}
+		m = make(map[string]interface{})
+		m["age_map"] = 40
+		m["name_map"] = "catalina"
+		m["size_map"] = 45.5
+		map_str, _ := json.Marshal(m)
+		fmt.Println(string(map_str))
+		//切片转换
+		var slice []map[string]interface{}
+		m1 := map[string]interface{}{
+			"age_m1":  43,
+			"name_m1": "catalina",
+			"size_m1": 50.6,
+		}
+		m2 := map[string]interface{}{
+			"person_age":  76,
+			"person_name": "dongmei",
+			"person_size": 78.6,
+		}
+		slice = append(slice, m1, m2)
+		slice_str, _ := json.Marshal(slice)
+		fmt.Println(string(slice_str))
 	}
-	slice = append(slice, m1, m2)
-	slice_str, _ := json.Marshal(slice)
-	fmt.Println(string(slice_str))
-}
-```
-上段代码输出结果分别为:
+	```
 
-`{"Age":40,"Name":"catalina","Size":43.5}`
-`{"age_map":40,"name_map":"catalina","size_map":45.5}`
-`[{"age_m1":43,"name_m1":"catalina","size_m1":50.6},{"person_age":76,"person_name":"dongmei","person_size":78.6}]`
++ 上段代码输出结果分别为:
+
+	`{"Age":40,"Name":"catalina","Size":43.5}`
+	`{"age_map":40,"name_map":"catalina","size_map":45.5}`
+	`[{"age_m1":43,"name_m1":"catalina","size_m1":50.6},{"person_age":76,"person_name":"dongmei","person_size":78.6}]`
+
++ 结构体字段使用tag指定json格式key
+
+	```go
+	type Person struct {
+		Age  int     `json:"age"`
+		Name string  `json:"name"`
+		Size float64 `json:"size"`
+	}
+	```
+* 结构体,map,map切片反序列化:
+
+	```go
+	func main() {
+		//结构体反序列化
+		struct_str := "{\"Age\":40,\"Name\":\"catalina\",\"Size\":43.5}"
+		p := new(Person)
+		json.Unmarshal([]byte(struct_str), p)
+		fmt.Println(*p)
+		//{40 catalina 43.5}
+		
+		//map反序列化
+		map_str := "{\"age_map\":40,\"name_map\":\"catalina\",\"size_map\":45.5}"
+		//map反序列化不需要make开辟空间
+		var m map[string]interface{}
+		json.Unmarshal([]byte(map_str), &m)
+		fmt.Println(m)
+		//map[age_map:40 name_map:catalina size_map:45.5]
+		
+		//切片反序列化
+		slice_str := "[{\"age_m1\":43,\"name_m1\":\"catalina\",\"size_m1\":50.6},{\"person_age\":76,\"person_name\":\"dongmei\",\"person_size\":78.6}]"
+		var slice []map[string]interface{}
+		json.Unmarshal([]byte(slice_str), &slice)
+		fmt.Println(slice)
+		//[map[age_m1:43 name_m1:catalina size_m1:50.6] map[person_age:76 person_name:dongmei person_size:78.6]]
+	}
+	```
+
+* map，切片等数据类型在反序列化时不需要make来创建空间，`json.Unmarshal()`会做该动作
+* Go中反序列化与Java不同，不会直接返回一个新的对象，在Unmarshal函数调用时候需要传递一个对应类型的指针
+
 		
 ### goroutine
 	
@@ -599,10 +641,13 @@ func main() {
 
 
 
+#### testing
+
+* 文件名称以下划线test结尾
+* 函数名以Test开头且测试的函数名不能是小写的a-z
 
 
-
-
+#### 网络编程
 
 
 
