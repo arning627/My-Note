@@ -194,7 +194,8 @@ var i float32 = float32(i)
 	- channel是有类型的，如 string的channel职能存放string类型数据
 	- 引用类型
 	- 必须make()初始化 不会自动扩容
-	- 内置函数可以关闭channel 关闭后无法再写入数据  但可以读取
+	- 内置函数可以关闭channel 关闭后无法再写入数据  但可以读取 channel中的数据全都消费完后该channel生命周期结束
+	- channel遍历使用for-range 遍历时如果未关闭会抛出deadlock 已关闭的channel遍历完成后退出 此时该channel长度为0(遍历算作消费)
 
 	```go
 	func main() {
