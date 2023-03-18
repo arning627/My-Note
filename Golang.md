@@ -194,6 +194,7 @@ var i float32 = float32(i)
 	- channel是有类型的，如 string的channel职能存放string类型数据
 	- 引用类型
 	- 必须make()初始化 不会自动扩容
+	- 内置函数可以关闭channel 关闭后无法再写入数据  但可以读取
 
 	```go
 	func main() {
@@ -207,6 +208,10 @@ var i float32 = float32(i)
 		e := <-schan
 		fmt.Printf("e: %v\n", e)
 		fmt.Printf("长度=%v,容量=%v\n", len(schan), cap(schan))
+		//---------------------------
+		//长度=2,容量=3
+		//e: index_1
+		//长度=1,容量=3
 	}
 	```
 	
