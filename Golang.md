@@ -746,7 +746,30 @@ datas := append(data,3) 含义为在data切片中添加一个新的元素，值�
 * 文件名以_test.go 结尾
 * 函数名以Test开头且测试的函数名不能是小写的a-z
 
-#### 反射 
+#### 反射 reflect
+
+* 在运行时动态获取变量信息（类型，类别，对象绑定的方法，字段等） 与Java中类似
+* 使用reflect包
+* 变量 ,空接口,reflect.Value之间可以相互转换
+* 反射转换为空接口再转换为原对象类型后会返回新对象
+
+	```go
+	func face(v ref.Value) {
+		value := v.Interface()
+		fmt.Printf("value: %v,type=%T\n", value, value)
+		stu, _ := value.(Studnet)
+		fmt.Printf("face() stu: %v,地址:%p\n", stu, &stu)
+	}
+	func main() {
+		stu := Studnet{Name: "M", Age: 16}
+		face(ref.ValueOf(stu))
+		fmt.Printf("main() stu: %v,地址:%p\n", stu, &stu)
+		//----------------------------------------
+		//value: {M 16},type=main.Studnet
+		//face() stu: {M 16},地址:0xc000010060
+		//main() stu: {M 16},地址:0xc000010030
+	}	
+	```
 
 
 #### 网络编程
