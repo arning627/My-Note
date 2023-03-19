@@ -194,9 +194,7 @@ var i float32 = float32(i)
 	- channel是有类型的，如 string的channel职能存放string类型数据
 	- 引用类型
 	- 必须make()初始化 不会自动扩容
-	- 内置函数可以关闭channel 关闭后无法再写入数据  但可以读取 channel中的数据全都消费完后该channel生命周期结束
-	- channel遍历使用for-range 遍历时如果未关闭会抛出deadlock 已关闭的channel遍历完成后退出 此时该channel长度为0(遍历算作消费)
-
+	
 	```go
 	func main() {
 		var schan chan string
@@ -216,6 +214,37 @@ var i float32 = float32(i)
 	}
 	```
 	
+	- 内置函数可以关闭channel 关闭后无法再写入数据  但可以读取 channel中的数据全都消费完后该channel生命周期结束
+	- channel遍历使用for-range 遍历时如果未关闭会抛出deadlock 已关闭的channel遍历完成后退出 此时该channel长度为0(遍历算作消费)
+	- 管道默认为双向（可读可写），声明为只写 `var wochan chan<- int` 声明为只读`var rochan <-chan int`
+	- select 可以解决从管道获取数据的阻塞问题 消费未关闭的管道不会抛出死锁异常
+	
+	```go
+	func main() {
+		intChan := make(chan int, 10)
+		for i := 0; i < 10; i++ {
+			intChan <- i
+		}
+		stringChan := make(chan string, 5)
+		for i := 0; i < 5; i++ {
+			stringChan <- "hello" + fmt.Sprintf("%d", i)
+		}
+	
+		for {
+			select {
+			case v := <-intChan:
+				fmt.Println(v)
+			case v := <-stringChan:
+				fmt.Println(v)
+			default:
+				fmt.Println("所有channel都消费完")
+				return
+			}
+		}
+	}
+	```
+
+		
 * 函数 func
 	
 	+ 在Go中也算作一种数据类型
@@ -681,6 +710,32 @@ datas := append(data,3) 含义为在data切片中添加一个新的元素，值�
 * 并发带来的安全问题
 	- 全局互斥锁 `sync.Mutex`
 	- channel
+* 在goroutine中使用recover()捕获异常确保其他协程正常执行
+
+	```go
+	func hello() {
+		for i := 0; i < 10; i++ {
+			time.Sleep(time.Second)
+			fmt.Println("hello")
+		}
+	}
+	func throw() {
+		defer func() {
+			if err := recover(); err != nil {
+				fmt.Println(err)
+			}
+		}()
+		var e map[string]string
+		e["a"] = "A"
+	}
+	func main() {
+		go hello()
+		go throw()
+		for i := 0; i < 10; i++ {
+			fmt.Println("main()...")
+		}
+	}
+	```
 
 
 #### testing
@@ -690,6 +745,8 @@ datas := append(data,3) 含义为在data切片中添加一个新的元素，值�
 * `go test -v -test.run [methodname]` 测试单个方法
 * 文件名以_test.go 结尾
 * 函数名以Test开头且测试的函数名不能是小写的a-z
+
+#### 反射 
 
 
 #### 网络编程
