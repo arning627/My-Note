@@ -127,7 +127,7 @@ var i float32 = float32(i)
 	```
  	绑定方法:
 
-	```golang\
+	```go
 	type Cat struct {
 	    	Name  string `json:"name"`
 	    	Age   int    `json:"age"`
